@@ -9,13 +9,14 @@ import {
   FiSettings 
 } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 function AdminSidebar() {
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logout();
     toast.success("Admin session terminated");
     navigate("/login");
   };

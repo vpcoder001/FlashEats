@@ -4,26 +4,24 @@ import axios from "axios";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-
-  useEffect(() => {
+  const [user, setUser] = useState(() => {
     try {
       const storedUser = localStorage.getItem("user");
-      const storedToken = localStorage.getItem("token");
-
-      if (storedUser && storedUser !== "undefined") {
-        setUser(JSON.parse(storedUser));
-      }
-
-      if (storedToken) {
-        setToken(storedToken);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
-      }
+      return storedUser && storedUser !== "undefined" ? JSON.parse(storedUser) : null;
     } catch (err) {
       console.log("Auth init error:", err);
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
+      return null;
+    }
+  });
+
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem("token") || null;
+  });
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${storedToken}`;
     }
   }, []);
 

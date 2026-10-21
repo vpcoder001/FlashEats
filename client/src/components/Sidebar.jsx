@@ -10,28 +10,21 @@ import {
   FiZap 
 } from "react-icons/fi";
 import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 function Sidebar() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [userName, setUserName] = useState("Student User");
 
-  
   useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        
-        setUserName(user.name || user.fullName || "Student User");
-      } catch (err) {
-        console.error("Error parsing user data", err);
-      }
+    if (user) {
+      setUserName(user.name || user.fullName || "Student User");
     }
-  }, []);
+  }, [user]);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    logout();
     toast.success("Logged out safely");
     navigate("/login");
   };

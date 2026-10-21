@@ -6,9 +6,11 @@ import axios from "axios";
 
 import API from "../api/axios";
 import { loginUser } from "../api/authApi";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [role, setRole] = useState("student");
   const [email, setEmail] = useState("");
@@ -30,12 +32,9 @@ function Login() {
       const user = res.data.user || res.data;
       const token = res.data.token;
 
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", token);
+      login(user, token);
 
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-
-      navigate("/student", { replace: true });
+      navigate(user.role === "admin" ? "/admin" : "/student", { replace: true });
     } catch (err) {
       alert("Google login failed. Use your college email.");
     } finally {
@@ -55,30 +54,28 @@ function Login() {
   };
 
   const handleLogin = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await loginUser({
-      email,
-      password: role === "student" ? password : undefined,
-      otp: role === "admin" ? otp : undefined,
-      role,
-    });
+      const res = await loginUser({
+        email,
+        password: role === "student" ? password : undefined,
+        otp: role === "admin" ? otp : undefined,
+        role,
+      });
 
-    const { token, role: userRole, name } = res.data;
+      const { token, role: userRole, name } = res.data;
 
-    const userData = { name, role: userRole, email };
+      const userData = { name, role: userRole, email };
 
-    localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", token);
+      login(userData, token);
 
-    navigate(userRole === "admin" ? "/admin" : "/student", {
-      replace: true,
-    });
-
-  } catch (err) {
+      navigate(userRole === "admin" ? "/admin" : "/student", {
+        replace: true,
+      });
+    } catch (err) {
     alert(err.response?.data?.message || "Login failed");
     console.log(err);
   } finally {
