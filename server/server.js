@@ -24,6 +24,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://flasheats-client.s3-website-us-east-1.amazonaws.com",
+  "https://flasheats.onrender.com",
 ];
 
 app.use(cors({
