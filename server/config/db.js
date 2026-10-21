@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { seedDefaultAdmin } from "../utils/seedAdmin.js";
 
 const connectDB = async () => {
 
@@ -7,6 +8,9 @@ const connectDB = async () => {
     const conn = await mongoose.connect(process.env.MONGO_URI);
 
     console.log(`MongoDB Connected: ${conn.connection.host}`);
+
+    // Seed default admin accounts
+    await seedDefaultAdmin();
 
   } catch (error) {
 

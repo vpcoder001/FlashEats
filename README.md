@@ -199,6 +199,11 @@ npm install
 npm run dev
 ```
 
+### 4. Default Admin Credentials
+- **Email**: `admin@ietlucknow.ac.in` (or `admin1@ietlucknow.ac.in`)
+- **Password**: `admin123`
+- **Role**: Select **Admin** on the login page (no OTP required)
+
 ---
 
 # 🔄 Order Flow

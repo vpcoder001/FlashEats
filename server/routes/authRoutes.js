@@ -9,10 +9,12 @@ const router = express.Router();
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-//Admin whitelist
+// Admin whitelist
 const ADMIN_WHITELIST = [
+  "admin@ietlucknow.ac.in",
   "admin1@ietlucknow.ac.in",
   "canteen@ietlucknow.ac.in",
+  "admin@flasheats.com",
   "2400520100016@ietlucknow.ac.in",
   "2400520200008@ietlucknow.ac.in",
   "2400520100070@ietlucknow.ac.in"
@@ -25,14 +27,18 @@ router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     // Only college email
-    if (!email.endsWith("@ietlucknow.ac.in")) {
+    if (!normalizedEmail.endsWith("@ietlucknow.ac.in")) {
       return res.status(400).json({
         message: "Use college email only"
       });
     }
 
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") }
+    });
 
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
@@ -42,7 +48,7 @@ router.post("/register", async (req, res) => {
 
     const user = new User({
       name,
-      email,
+      email: normalizedEmail,
       password: hashedPassword,
       role: "student"
     });
@@ -61,9 +67,22 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email, password, role, otp } = req.body;
+    const { email, password, role } = req.body;
 
-    const user = await User.findOne({ email });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    let normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail === "admin") {
+      normalizedEmail = "admin@ietlucknow.ac.in";
+    } else if (normalizedEmail === "admin1") {
+      normalizedEmail = "admin1@ietlucknow.ac.in";
+    }
+
+    const user = await User.findOne({
+      email: { $regex: new RegExp(`^${normalizedEmail}$`, "i") }
+    });
 
     if (!user) {
       return res.status(400).json({ message: "User not found" });
@@ -71,39 +90,36 @@ router.post("/login", async (req, res) => {
 
     // STUDENT LOGIN 
     if (role === "student") {
-
-      if (!email.endsWith("@ietlucknow.ac.in")) {
+      if (!normalizedEmail.endsWith("@ietlucknow.ac.in")) {
         return res.status(400).json({
           message: "Use college email only"
         });
       }
 
-      const isMatch = await bcrypt.compare(password, user.password || "");
-
-      if (!isMatch) {
-        return res.status(400).json({ message: "Invalid credentials" });
+      if (user.role !== "student") {
+        return res.status(403).json({
+          message: "Not authorized as student"
+        });
       }
     }
 
-    // ADMIN LOGIN
+    // ADMIN LOGIN (No OTP needed - direct password authentication)
     if (role === "admin") {
+      const isWhitelisted = ADMIN_WHITELIST.some(
+        (e) => e.toLowerCase() === normalizedEmail
+      );
 
-      if (!ADMIN_WHITELIST.includes(email)) {
+      if (!isWhitelisted && user.role !== "admin") {
         return res.status(403).json({
-          message: "Not authorized"
+          message: "Not authorized as admin"
         });
       }
+    }
 
-      if (!otp || user.otp !== otp || user.otpExpiry < Date.now()) {
-        return res.status(400).json({
-          message: "Invalid or expired OTP"
-        });
-      }
+    const isMatch = await bcrypt.compare(password, user.password || "");
 
-      // clear OTP after use
-      user.otp = null;
-      user.otpExpiry = null;
-      await user.save();
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     const token = jwt.sign(

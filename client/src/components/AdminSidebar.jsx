@@ -62,33 +62,35 @@ function AdminSidebar() {
                 }
               `}
             >
-              <div className="flex items-center gap-4">
-                <span className="text-xl transition-transform group-hover:rotate-12 transition-transform">
-                  {item.icon}
-                </span>
-                <span className="font-bold text-sm tracking-wide">
-                  {item.name}
-                </span>
-              </div>
+              {({ isActive }) => (
+                <>
+                  <div className="flex items-center gap-4">
+                    <span className="text-xl transition-transform group-hover:rotate-12">
+                      {item.icon}
+                    </span>
+                    <span className="font-bold text-sm tracking-wide">
+                      {item.name}
+                    </span>
+                  </div>
 
-              {/* Special Badge for Live Orders */}
-              {item.badge && (
-                <span className="text-[9px] bg-red-600/20 text-red-500 px-2 py-0.5 rounded-md font-black border border-red-500/20 animate-pulse">
-                  {item.badge}
-                </span>
+                  {/* Special Badge for Live Orders */}
+                  {item.badge && (
+                    <span className="text-[9px] bg-red-600/20 text-red-500 px-2 py-0.5 rounded-md font-black border border-red-500/20 animate-pulse">
+                      {item.badge}
+                    </span>
+                  )}
+
+                  {/* Active Slide Indicator */}
+                  {isActive && (
+                    <motion.div 
+                      layoutId="adminIndicator"
+                      className="absolute inset-0 border-2 border-indigo-500/30 rounded-2xl -z-10"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                </>
               )}
-
-              {/* Active Slide Indicator */}
-              <NavLink to={item.path}>
-                {({ isActive }) => isActive && (
-                  <motion.div 
-                    layoutId="adminIndicator"
-                    className="absolute inset-0 border-2 border-indigo-500/30 rounded-2xl -z-10"
-                    initial={false}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  />
-                )}
-              </NavLink>
             </NavLink>
           ))}
         </nav>

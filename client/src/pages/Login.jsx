@@ -15,7 +15,6 @@ function Login() {
   const [role, setRole] = useState("student");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
   // 👁️ NEW STATE
@@ -42,17 +41,6 @@ function Login() {
     }
   };
 
-  const sendOtp = async () => {
-    if (!email) return alert("Please enter email first");
-
-    try {
-      await API.post("/api/auth/send-otp", { email });
-      alert("OTP sent to email");
-    } catch {
-      alert("Failed to send OTP");
-    }
-  };
-
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -61,8 +49,7 @@ function Login() {
 
       const res = await loginUser({
         email,
-        password: role === "student" ? password : undefined,
-        otp: role === "admin" ? otp : undefined,
+        password,
         role,
       });
 
@@ -76,12 +63,12 @@ function Login() {
         replace: true,
       });
     } catch (err) {
-    alert(err.response?.data?.message || "Login failed");
-    console.log(err);
-  } finally {
-    setLoading(false);
-  }
-};
+      alert(err.response?.data?.message || "Login failed");
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="h-screen flex items-center justify-center bg-gradient-to-br from-black via-slate-900 to-black">
@@ -98,7 +85,7 @@ function Login() {
 
           <input
             type="email"
-            placeholder="College Email"
+            placeholder={role === "admin" ? "Admin Email (admin@ietlucknow.ac.in)" : "College Email (roll@ietlucknow.ac.in)"}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-gray-800 p-3 rounded-lg text-white outline-none"
@@ -106,47 +93,24 @@ function Login() {
           />
 
           {/* 🔐 PASSWORD WITH SHOW/HIDE */}
-          {role === "student" && (
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-gray-800 p-3 pr-12 rounded-lg text-white"
-                required
-              />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-gray-800 p-3 pr-12 rounded-lg text-white"
+              required
+            />
 
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-300 hover:text-white"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-          )}
-
-          {role === "admin" && (
-            <>
-              <button
-                type="button"
-                onClick={sendOtp}
-                className="w-full bg-yellow-500 py-2 rounded-lg font-bold text-black hover:bg-yellow-600 transition"
-              >
-                Send OTP
-              </button>
-
-              <input
-                type="text"
-                placeholder="Enter OTP"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="w-full bg-gray-800 p-3 rounded-lg text-white"
-                required
-              />
-            </>
-          )}
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-300 hover:text-white"
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
 
           <select
             value={role}
@@ -166,14 +130,16 @@ function Login() {
           </motion.button>
         </form>
 
-        {role === "student" && (
-          <div className="mt-6 flex flex-col items-center border-t border-white/10 pt-6">
-            <GoogleLogin
-              onSuccess={handleGoogleResponse}
-              onError={() => alert("Google Login Failed")}
-            />
-          </div>
-        )}
+        {role === "student" &&
+          import.meta.env.VITE_GOOGLE_CLIENT_ID &&
+          !import.meta.env.VITE_GOOGLE_CLIENT_ID.includes("your_google_client_id") && (
+            <div className="mt-6 flex flex-col items-center border-t border-white/10 pt-6">
+              <GoogleLogin
+                onSuccess={handleGoogleResponse}
+                onError={() => alert("Google Login Failed")}
+              />
+            </div>
+          )}
 
         <p className="text-gray-400 text-sm text-center mt-4">
           Don't have an account?{" "}

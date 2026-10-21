@@ -22,12 +22,26 @@ connectDB();
 const app = express();
 
 
+const allowedOrigins = [
+  "http://flasheats-client.s3-website-us-east-1.amazonaws.com",
+];
+
 app.use(cors({
-  origin: [
-    "http://flasheats-client.s3-website-us-east-1.amazonaws.com",
-    "http://localhost:5173",
-    "http://127.0.0.1:5173"
-  ],
+  origin: (origin, callback) => {
+    // allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+
+    // allow any localhost / 127.0.0.1 port (5173, 5174, 3000, etc.)
+    if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(null, false);
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
