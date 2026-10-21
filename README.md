@@ -164,7 +164,7 @@ cp server/.env.example server/.env
 ```
 Update `server/.env` with your credentials:
 ```env
-PORT=5000
+PORT=5001
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret_key
 GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
@@ -179,7 +179,7 @@ cp client/.env.example client/.env
 ```
 Update `client/.env` with your frontend variables:
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:5001
 VITE_GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
 ```
 
