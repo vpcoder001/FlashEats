@@ -25,6 +25,7 @@ const app = express();
 const allowedOrigins = [
   "http://flasheats-client.s3-website-us-east-1.amazonaws.com",
   "https://flasheats.onrender.com",
+  "https://flash-eats.vercel.app",
 ];
 
 app.use(cors({
