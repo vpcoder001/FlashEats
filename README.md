@@ -149,18 +149,55 @@ The system follows a **full-stack web architecture**:
 
 # ⚙️ Installation Guide
 
-- Clone the repository
-git clone https://github.com/Prajitsingh1105/canteen-management-system.git
+### 1. Clone the repository
+```bash
+git clone https://github.com/vpcoder001/Flash_Eats.git
+cd Flash_Eats
+```
 
-- Install dependencies
-  - cd client
-  - npm install
+### 2. Configure Environment Variables
 
-  - cd ../server
-  - npm install
+#### Backend (`server/.env`)
+Copy the sample environment file in `server/`:
+```bash
+cp server/.env.example server/.env
+```
+Update `server/.env` with your credentials:
+```env
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+SENDGRID_API_KEY=SG.your_sendgrid_api_key
+EMAIL_FROM=your_verified_sender_email
+```
 
-- Run the project
-  - npm run dev
+#### Frontend (`client/.env`)
+Copy the sample environment file in `client/`:
+```bash
+cp client/.env.example client/.env
+```
+Update `client/.env` with your frontend variables:
+```env
+VITE_API_URL=http://localhost:5000
+VITE_GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+```
+
+### 3. Install Dependencies & Run
+
+#### Backend Server
+```bash
+cd server
+npm install
+npm run dev
+```
+
+#### Frontend Client
+```bash
+cd client
+npm install
+npm run dev
+```
 
 ---
 
